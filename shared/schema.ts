@@ -1,6 +1,17 @@
-import { pgTable, text, serial, integer, boolean, decimal, timestamp, varchar } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, decimal, timestamp, varchar, jsonb, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+
+// Session storage table for authentication
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: jsonb("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => [index("IDX_session_expire").on(table.expire)],
+);
 
 // Users table for authentication
 export const users = pgTable("users", {
@@ -9,44 +20,48 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   role: text("role").notNull().default("vendedor"), // admin, vendedor
   name: text("name").notNull(),
+  status: text("status").notNull().default("activo"), // activo, inactivo
 });
 
-// Products table
+// Products table - Maestro de productos
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
-  sku: text("sku").notNull().unique(),
+  code: text("code").notNull().unique(), // Código único de producto
   name: text("name").notNull(),
-  type: text("type").notNull(), // cristal, montura, lente_contacto, liquido
-  description: text("description"),
-  buyPrice: decimal("buy_price", { precision: 10, scale: 2 }).notNull(),
-  sellPrice: decimal("sell_price", { precision: 10, scale: 2 }).notNull(),
+  category: text("category").notNull(), // armazones, lentes, lentes_contacto, accesorios
+  supplier: text("supplier").notNull(),
   stock: integer("stock").notNull().default(0),
-  supplier: text("supplier"),
+  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  stockStatus: text("stock_status").notNull().default("normal"), // normal, bajo, critico
+  type: text("type").notNull().default("propio"), // propio, consignacion
+  status: text("status").notNull().default("activo"), // activo, inactivo
 });
 
-// Patients table
+// Patients table - Registro y gestión de pacientes
 export const patients = pgTable("patients", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email"),
   phone: text("phone"),
   address: text("address"),
-  birthDate: text("birth_date"),
+  status: text("status").notNull().default("activo"), // activo, inactivo
   notes: text("notes"),
 });
 
-// Appointments table
+// Appointments table - Agenda de citas
 export const appointments = pgTable("appointments", {
   id: serial("id").primaryKey(),
   patientId: integer("patient_id").references(() => patients.id),
+  patientName: text("patient_name").notNull(),
   date: text("date").notNull(),
   time: text("time").notNull(),
-  type: text("type").notNull(), // consulta, entrega, revision
+  type: text("type").notNull(), // examen_visual, consulta, control, entrega
+  doctorName: text("doctor_name"),
   status: text("status").notNull().default("pendiente"), // pendiente, confirmada, cancelada
   notes: text("notes"),
 });
 
-// Sales orders table
+// Sales orders table - Gestión de Pedidos
 export const salesOrders = pgTable("sales_orders", {
   id: serial("id").primaryKey(),
   orderNumber: text("order_number").notNull().unique(),
@@ -63,11 +78,13 @@ export const salesOrderItems = pgTable("sales_order_items", {
   id: serial("id").primaryKey(),
   salesOrderId: integer("sales_order_id").references(() => salesOrders.id),
   productId: integer("product_id").references(() => products.id),
+  productName: text("product_name").notNull(),
   quantity: integer("quantity").notNull(),
-  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  unitPrice: decimal("unit_price", { precision: 10, scale: 2 }).notNull(),
+  totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
 });
 
-// Purchase orders table
+// Purchase orders table - Órdenes de Compra
 export const purchaseOrders = pgTable("purchase_orders", {
   id: serial("id").primaryKey(),
   orderNumber: text("order_number").notNull().unique(),
@@ -83,30 +100,39 @@ export const purchaseOrderItems = pgTable("purchase_order_items", {
   id: serial("id").primaryKey(),
   purchaseOrderId: integer("purchase_order_id").references(() => purchaseOrders.id),
   productId: integer("product_id").references(() => products.id),
+  productName: text("product_name").notNull(),
   quantity: integer("quantity").notNull(),
-  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  unitPrice: decimal("unit_price", { precision: 10, scale: 2 }).notNull(),
+  totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
 });
 
-// Consignments table
+// Consignments table - Consignaciones MVP Manual
 export const consignments = pgTable("consignments", {
   id: serial("id").primaryKey(),
   supplier: text("supplier").notNull(),
-  productId: integer("product_id").references(() => products.id),
+  productName: text("product_name").notNull(),
+  category: text("category").notNull(), // armazones, lentes, lentes_contacto, accesorios
   quantity: integer("quantity").notNull(),
   receivedDate: text("received_date").notNull(),
   returnDate: text("return_date"),
+  expirationDate: text("expiration_date"),
   status: text("status").notNull().default("activa"), // activa, devuelta, vendida
   notes: text("notes"),
 });
 
-// Prescriptions table
+// Prescriptions table - Recetas ópticas
 export const prescriptions = pgTable("prescriptions", {
   id: serial("id").primaryKey(),
   patientId: integer("patient_id").references(() => patients.id),
+  patientName: text("patient_name").notNull(),
   date: text("date").notNull(),
   professional: text("professional").notNull(),
-  rightEye: text("right_eye"),
-  leftEye: text("left_eye"),
+  rightEyeSphere: text("right_eye_sphere"),
+  rightEyeCylinder: text("right_eye_cylinder"),
+  rightEyeAxis: text("right_eye_axis"),
+  leftEyeSphere: text("left_eye_sphere"),
+  leftEyeCylinder: text("left_eye_cylinder"),
+  leftEyeAxis: text("left_eye_axis"),
   observations: text("observations"),
   recommendedProducts: text("recommended_products"),
 });

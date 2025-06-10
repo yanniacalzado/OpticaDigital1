@@ -30,6 +30,8 @@ import {
   type Prescription,
   type InsertPrescription,
 } from "@shared/schema";
+import { db } from "./db";
+import { eq, count } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -105,271 +107,226 @@ export interface IStorage {
   }>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User> = new Map();
-  private products: Map<number, Product> = new Map();
-  private patients: Map<number, Patient> = new Map();
-  private appointments: Map<number, Appointment> = new Map();
-  private salesOrders: Map<number, SalesOrder> = new Map();
-  private salesOrderItems: Map<number, SalesOrderItem> = new Map();
-  private purchaseOrders: Map<number, PurchaseOrder> = new Map();
-  private purchaseOrderItems: Map<number, PurchaseOrderItem> = new Map();
-  private consignments: Map<number, Consignment> = new Map();
-  private prescriptions: Map<number, Prescription> = new Map();
-  private currentId: number = 1;
-
-  constructor() {
-    // Initialize with default admin user
-    this.createUser({
-      username: "admin",
-      password: "admin123",
-      role: "admin",
-      name: "Administrador"
-    });
-  }
-
+export class DatabaseStorage implements IStorage {
   // Users
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(user => user.username === username);
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
   // Products
   async getProducts(): Promise<Product[]> {
-    return Array.from(this.products.values());
+    return await db.select().from(products);
   }
 
   async getProduct(id: number): Promise<Product | undefined> {
-    return this.products.get(id);
+    const [product] = await db.select().from(products).where(eq(products.id, id));
+    return product || undefined;
   }
 
   async createProduct(insertProduct: InsertProduct): Promise<Product> {
-    const id = this.currentId++;
-    const product: Product = { ...insertProduct, id };
-    this.products.set(id, product);
+    const [product] = await db.insert(products).values(insertProduct).returning();
     return product;
   }
 
   async updateProduct(id: number, productUpdate: Partial<InsertProduct>): Promise<Product | undefined> {
-    const existing = this.products.get(id);
-    if (!existing) return undefined;
-    const updated = { ...existing, ...productUpdate };
-    this.products.set(id, updated);
-    return updated;
+    const [updated] = await db.update(products).set(productUpdate).where(eq(products.id, id)).returning();
+    return updated || undefined;
   }
 
   async deleteProduct(id: number): Promise<boolean> {
-    return this.products.delete(id);
+    const result = await db.delete(products).where(eq(products.id, id));
+    return result.rowCount > 0;
   }
 
   // Patients
   async getPatients(): Promise<Patient[]> {
-    return Array.from(this.patients.values());
+    return await db.select().from(patients);
   }
 
   async getPatient(id: number): Promise<Patient | undefined> {
-    return this.patients.get(id);
+    const [patient] = await db.select().from(patients).where(eq(patients.id, id));
+    return patient || undefined;
   }
 
   async createPatient(insertPatient: InsertPatient): Promise<Patient> {
-    const id = this.currentId++;
-    const patient: Patient = { ...insertPatient, id };
-    this.patients.set(id, patient);
+    const [patient] = await db.insert(patients).values(insertPatient).returning();
     return patient;
   }
 
   async updatePatient(id: number, patientUpdate: Partial<InsertPatient>): Promise<Patient | undefined> {
-    const existing = this.patients.get(id);
-    if (!existing) return undefined;
-    const updated = { ...existing, ...patientUpdate };
-    this.patients.set(id, updated);
-    return updated;
+    const [updated] = await db.update(patients).set(patientUpdate).where(eq(patients.id, id)).returning();
+    return updated || undefined;
   }
 
   async deletePatient(id: number): Promise<boolean> {
-    return this.patients.delete(id);
+    const result = await db.delete(patients).where(eq(patients.id, id));
+    return result.rowCount > 0;
   }
 
   // Appointments
   async getAppointments(): Promise<Appointment[]> {
-    return Array.from(this.appointments.values());
+    return await db.select().from(appointments);
   }
 
   async getAppointment(id: number): Promise<Appointment | undefined> {
-    return this.appointments.get(id);
+    const [appointment] = await db.select().from(appointments).where(eq(appointments.id, id));
+    return appointment || undefined;
   }
 
   async createAppointment(insertAppointment: InsertAppointment): Promise<Appointment> {
-    const id = this.currentId++;
-    const appointment: Appointment = { ...insertAppointment, id };
-    this.appointments.set(id, appointment);
+    const [appointment] = await db.insert(appointments).values(insertAppointment).returning();
     return appointment;
   }
 
   async updateAppointment(id: number, appointmentUpdate: Partial<InsertAppointment>): Promise<Appointment | undefined> {
-    const existing = this.appointments.get(id);
-    if (!existing) return undefined;
-    const updated = { ...existing, ...appointmentUpdate };
-    this.appointments.set(id, updated);
-    return updated;
+    const [updated] = await db.update(appointments).set(appointmentUpdate).where(eq(appointments.id, id)).returning();
+    return updated || undefined;
   }
 
   async deleteAppointment(id: number): Promise<boolean> {
-    return this.appointments.delete(id);
+    const result = await db.delete(appointments).where(eq(appointments.id, id));
+    return result.rowCount > 0;
   }
 
   // Sales Orders
   async getSalesOrders(): Promise<SalesOrder[]> {
-    return Array.from(this.salesOrders.values());
+    return await db.select().from(salesOrders);
   }
 
   async getSalesOrder(id: number): Promise<SalesOrder | undefined> {
-    return this.salesOrders.get(id);
+    const [salesOrder] = await db.select().from(salesOrders).where(eq(salesOrders.id, id));
+    return salesOrder || undefined;
   }
 
   async createSalesOrder(insertSalesOrder: InsertSalesOrder): Promise<SalesOrder> {
-    const id = this.currentId++;
-    const salesOrder: SalesOrder = { ...insertSalesOrder, id };
-    this.salesOrders.set(id, salesOrder);
+    const [salesOrder] = await db.insert(salesOrders).values(insertSalesOrder).returning();
     return salesOrder;
   }
 
   async updateSalesOrder(id: number, orderUpdate: Partial<InsertSalesOrder>): Promise<SalesOrder | undefined> {
-    const existing = this.salesOrders.get(id);
-    if (!existing) return undefined;
-    const updated = { ...existing, ...orderUpdate };
-    this.salesOrders.set(id, updated);
-    return updated;
+    const [updated] = await db.update(salesOrders).set(orderUpdate).where(eq(salesOrders.id, id)).returning();
+    return updated || undefined;
   }
 
   async deleteSalesOrder(id: number): Promise<boolean> {
-    return this.salesOrders.delete(id);
+    const result = await db.delete(salesOrders).where(eq(salesOrders.id, id));
+    return result.rowCount > 0;
   }
 
   // Sales Order Items
   async getSalesOrderItems(salesOrderId: number): Promise<SalesOrderItem[]> {
-    return Array.from(this.salesOrderItems.values()).filter(item => item.salesOrderId === salesOrderId);
+    return await db.select().from(salesOrderItems).where(eq(salesOrderItems.salesOrderId, salesOrderId));
   }
 
   async createSalesOrderItem(insertItem: InsertSalesOrderItem): Promise<SalesOrderItem> {
-    const id = this.currentId++;
-    const item: SalesOrderItem = { ...insertItem, id };
-    this.salesOrderItems.set(id, item);
+    const [item] = await db.insert(salesOrderItems).values(insertItem).returning();
     return item;
   }
 
   async deleteSalesOrderItem(id: number): Promise<boolean> {
-    return this.salesOrderItems.delete(id);
+    const result = await db.delete(salesOrderItems).where(eq(salesOrderItems.id, id));
+    return result.rowCount > 0;
   }
 
   // Purchase Orders
   async getPurchaseOrders(): Promise<PurchaseOrder[]> {
-    return Array.from(this.purchaseOrders.values());
+    return await db.select().from(purchaseOrders);
   }
 
   async getPurchaseOrder(id: number): Promise<PurchaseOrder | undefined> {
-    return this.purchaseOrders.get(id);
+    const [purchaseOrder] = await db.select().from(purchaseOrders).where(eq(purchaseOrders.id, id));
+    return purchaseOrder || undefined;
   }
 
   async createPurchaseOrder(insertPurchaseOrder: InsertPurchaseOrder): Promise<PurchaseOrder> {
-    const id = this.currentId++;
-    const purchaseOrder: PurchaseOrder = { ...insertPurchaseOrder, id };
-    this.purchaseOrders.set(id, purchaseOrder);
+    const [purchaseOrder] = await db.insert(purchaseOrders).values(insertPurchaseOrder).returning();
     return purchaseOrder;
   }
 
   async updatePurchaseOrder(id: number, orderUpdate: Partial<InsertPurchaseOrder>): Promise<PurchaseOrder | undefined> {
-    const existing = this.purchaseOrders.get(id);
-    if (!existing) return undefined;
-    const updated = { ...existing, ...orderUpdate };
-    this.purchaseOrders.set(id, updated);
-    return updated;
+    const [updated] = await db.update(purchaseOrders).set(orderUpdate).where(eq(purchaseOrders.id, id)).returning();
+    return updated || undefined;
   }
 
   async deletePurchaseOrder(id: number): Promise<boolean> {
-    return this.purchaseOrders.delete(id);
+    const result = await db.delete(purchaseOrders).where(eq(purchaseOrders.id, id));
+    return result.rowCount > 0;
   }
 
   // Purchase Order Items
   async getPurchaseOrderItems(purchaseOrderId: number): Promise<PurchaseOrderItem[]> {
-    return Array.from(this.purchaseOrderItems.values()).filter(item => item.purchaseOrderId === purchaseOrderId);
+    return await db.select().from(purchaseOrderItems).where(eq(purchaseOrderItems.purchaseOrderId, purchaseOrderId));
   }
 
   async createPurchaseOrderItem(insertItem: InsertPurchaseOrderItem): Promise<PurchaseOrderItem> {
-    const id = this.currentId++;
-    const item: PurchaseOrderItem = { ...insertItem, id };
-    this.purchaseOrderItems.set(id, item);
+    const [item] = await db.insert(purchaseOrderItems).values(insertItem).returning();
     return item;
   }
 
   async deletePurchaseOrderItem(id: number): Promise<boolean> {
-    return this.purchaseOrderItems.delete(id);
+    const result = await db.delete(purchaseOrderItems).where(eq(purchaseOrderItems.id, id));
+    return result.rowCount > 0;
   }
 
   // Consignments
   async getConsignments(): Promise<Consignment[]> {
-    return Array.from(this.consignments.values());
+    return await db.select().from(consignments);
   }
 
   async getConsignment(id: number): Promise<Consignment | undefined> {
-    return this.consignments.get(id);
+    const [consignment] = await db.select().from(consignments).where(eq(consignments.id, id));
+    return consignment || undefined;
   }
 
   async createConsignment(insertConsignment: InsertConsignment): Promise<Consignment> {
-    const id = this.currentId++;
-    const consignment: Consignment = { ...insertConsignment, id };
-    this.consignments.set(id, consignment);
+    const [consignment] = await db.insert(consignments).values(insertConsignment).returning();
     return consignment;
   }
 
   async updateConsignment(id: number, consignmentUpdate: Partial<InsertConsignment>): Promise<Consignment | undefined> {
-    const existing = this.consignments.get(id);
-    if (!existing) return undefined;
-    const updated = { ...existing, ...consignmentUpdate };
-    this.consignments.set(id, updated);
-    return updated;
+    const [updated] = await db.update(consignments).set(consignmentUpdate).where(eq(consignments.id, id)).returning();
+    return updated || undefined;
   }
 
   async deleteConsignment(id: number): Promise<boolean> {
-    return this.consignments.delete(id);
+    const result = await db.delete(consignments).where(eq(consignments.id, id));
+    return result.rowCount > 0;
   }
 
   // Prescriptions
   async getPrescriptions(): Promise<Prescription[]> {
-    return Array.from(this.prescriptions.values());
+    return await db.select().from(prescriptions);
   }
 
   async getPrescription(id: number): Promise<Prescription | undefined> {
-    return this.prescriptions.get(id);
+    const [prescription] = await db.select().from(prescriptions).where(eq(prescriptions.id, id));
+    return prescription || undefined;
   }
 
   async createPrescription(insertPrescription: InsertPrescription): Promise<Prescription> {
-    const id = this.currentId++;
-    const prescription: Prescription = { ...insertPrescription, id };
-    this.prescriptions.set(id, prescription);
+    const [prescription] = await db.insert(prescriptions).values(insertPrescription).returning();
     return prescription;
   }
 
   async updatePrescription(id: number, prescriptionUpdate: Partial<InsertPrescription>): Promise<Prescription | undefined> {
-    const existing = this.prescriptions.get(id);
-    if (!existing) return undefined;
-    const updated = { ...existing, ...prescriptionUpdate };
-    this.prescriptions.set(id, updated);
-    return updated;
+    const [updated] = await db.update(prescriptions).set(prescriptionUpdate).where(eq(prescriptions.id, id)).returning();
+    return updated || undefined;
   }
 
   async deletePrescription(id: number): Promise<boolean> {
-    return this.prescriptions.delete(id);
+    const result = await db.delete(prescriptions).where(eq(prescriptions.id, id));
+    return result.rowCount > 0;
   }
 
   // Dashboard data
@@ -379,19 +336,20 @@ export class MemStorage implements IStorage {
     activeConsignments: number;
     todayAppointments: number;
   }> {
-    const salesOrders = Array.from(this.salesOrders.values());
-    const consignments = Array.from(this.consignments.values());
-    const appointments = Array.from(this.appointments.values());
-    
     const today = new Date().toISOString().split('T')[0];
-    
+
+    const [totalSalesResult] = await db.select({ count: count() }).from(salesOrders);
+    const [pendingOrdersResult] = await db.select({ count: count() }).from(salesOrders).where(eq(salesOrders.status, 'nuevo'));
+    const [activeConsignmentsResult] = await db.select({ count: count() }).from(consignments).where(eq(consignments.status, 'activa'));
+    const [todayAppointmentsResult] = await db.select({ count: count() }).from(appointments).where(eq(appointments.date, today));
+
     return {
-      totalSales: salesOrders.reduce((sum, order) => sum + Number(order.total), 0),
-      pendingOrders: salesOrders.filter(order => order.status === 'nuevo' || order.status === 'en_proceso').length,
-      activeConsignments: consignments.filter(c => c.status === 'activa').length,
-      todayAppointments: appointments.filter(a => a.date === today && a.status !== 'cancelada').length,
+      totalSales: totalSalesResult.count,
+      pendingOrders: pendingOrdersResult.count,
+      activeConsignments: activeConsignmentsResult.count,
+      todayAppointments: todayAppointmentsResult.count,
     };
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

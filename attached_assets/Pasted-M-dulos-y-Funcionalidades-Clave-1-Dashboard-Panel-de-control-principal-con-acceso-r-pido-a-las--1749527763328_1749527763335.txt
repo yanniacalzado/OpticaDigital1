@@ -1,0 +1,68 @@
+Módulos y Funcionalidades Clave
+1. Dashboard
+•	Panel de control principal con acceso rápido a las funcionalidades clave(Exámenes visuales, catálogo de productos, análisis de venta).
+•	Muestra información general (resúmenes de ventas mensual y diaria, consignaciones, citas, productos en inventario, citas recientes, ventas recientes y reportes (Resumen de inventario, ventas por categorias)).
+
+2. Productos 
+•	Maestro de productos:
+o	Atributos: Nombre, Categoría(Armazones, Lentes, Lentes de contacto, Accesorios), Proveedor, Stock, Precio, Estado (Normal, Bajo, Crítico), Tipo (Propio, Cpnsignaciones) y Acciones.
+o	Código único de producto.
+o	Vista general de productos disponibles.
+o	Cantidades básicas de stock (sin gestión avanzada por ahora).
+o	Filtros por tipo de producto o proveedor.
+o	Buscra por nombre, categoría o proveedor.
+o	Exportar a xls productos.
+
+3. Pacientes
+•	Registro y gestión de pacientes.
+•	Datos básicos: nombre, email, telefono, estado (Activo, Inactivo) contacto, historial de compras o servicios.
+•	Búsqueda y filtrado rápido de pacientes.
+•	Exportar a xls Pacientes.
+
+4. Citas
+•	Agenda de citas a pacientes (Nombre paciente, fecha, hora, tipo, doctor, estado, acciones).
+•	Visualización en lista y en calendario.
+•	Estado de la cita: Pendiente, Confirmada, Cancelada.
+
+5. Ventas: Gestión de Pedidos
+•	Ingreso manual de pedidos:
+o	Selección de cliente (existente o nuevo rápido).
+o	Selección de productos del catálogo y cantidad.
+o	Precio de venta editable.
+o	Campo de notas del pedido.
+o	Estado del pedido: Nuevo, En Proceso, Entregado, Cancelado.
+o	Generación automática de número de pedido.
+
+6. Compras: Órdenes de Compra
+•	Creación y gestión de órdenes de compra (OC):
+o	Selección de proveedor y productos del catálogo.
+o	Cantidad y precio de compra editable.
+o	Estado de la OC: Creada, Enviada, Recibida.
+o	Actualización de disponibilidad “virtual” tras la recepción.
+
+7. Consignaciones (MVP Manual)
+•	Registro manual de consignaciones recibidas:
+o	Datos: Proveedor, producto, categoría, cantidad, fechas (recepción y devolución/vencimiento).
+o	Estado de la consignación: Activa, Devuelta, Vendida.
+o	Vinculación con venta y registro de devoluciones.
+•	Preparación para integración con API de Telko (botón Sync Telko)
+
+8. POS (Punto de Venta)
+•	Punto de venta ágil y simplificado.
+•	Selección de productos y cliente.
+•	Registro de ventas rápidas con impresión de tickets.
+
+9. Recetas
+•	Registro y gestión de recetas ópticas vinculadas a pacientes.
+•	Datos: fecha, profesional responsable, observaciones y productos recomendados.
+•	Vinculación con pedidos de venta.
+
+10. Reportes
+•	Generación de reportes básicos.
+•	Ventas, compras, consignaciones y citas.
+•	Descarga en formatos estándar (PDF, Excel).
+
+11. Ajustes
+•	Configuración general del sistema.
+•	Gestión de roles de usuario (Admin, Vendedor).
+•	Parámetros básicos de la óptica.
