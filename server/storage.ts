@@ -146,7 +146,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteProduct(id: number): Promise<boolean> {
     const result = await db.delete(products).where(eq(products.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Patients
@@ -171,7 +171,7 @@ export class DatabaseStorage implements IStorage {
 
   async deletePatient(id: number): Promise<boolean> {
     const result = await db.delete(patients).where(eq(patients.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Appointments
@@ -196,7 +196,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteAppointment(id: number): Promise<boolean> {
     const result = await db.delete(appointments).where(eq(appointments.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Sales Orders
@@ -221,7 +221,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteSalesOrder(id: number): Promise<boolean> {
     const result = await db.delete(salesOrders).where(eq(salesOrders.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Sales Order Items
@@ -236,7 +236,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteSalesOrderItem(id: number): Promise<boolean> {
     const result = await db.delete(salesOrderItems).where(eq(salesOrderItems.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Purchase Orders
@@ -261,7 +261,7 @@ export class DatabaseStorage implements IStorage {
 
   async deletePurchaseOrder(id: number): Promise<boolean> {
     const result = await db.delete(purchaseOrders).where(eq(purchaseOrders.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Purchase Order Items
@@ -276,7 +276,7 @@ export class DatabaseStorage implements IStorage {
 
   async deletePurchaseOrderItem(id: number): Promise<boolean> {
     const result = await db.delete(purchaseOrderItems).where(eq(purchaseOrderItems.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Consignments
@@ -301,7 +301,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteConsignment(id: number): Promise<boolean> {
     const result = await db.delete(consignments).where(eq(consignments.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Prescriptions
@@ -326,7 +326,7 @@ export class DatabaseStorage implements IStorage {
 
   async deletePrescription(id: number): Promise<boolean> {
     const result = await db.delete(prescriptions).where(eq(prescriptions.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Dashboard data
