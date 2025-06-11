@@ -191,6 +191,32 @@ export function useCreateConsignment() {
   });
 }
 
+export function useUpdateConsignment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...consignment }: { id: number } & Partial<InsertConsignment>) => {
+      const response = await apiRequest("PUT", `/api/consignments/${id}`, consignment);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/consignments"] });
+    },
+  });
+}
+
+export function useDeleteConsignment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const response = await apiRequest("DELETE", `/api/consignments/${id}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/consignments"] });
+    },
+  });
+}
+
 // Prescriptions
 export function usePrescriptions() {
   return useQuery<Prescription[]>({
@@ -203,6 +229,32 @@ export function useCreatePrescription() {
   return useMutation({
     mutationFn: async (prescription: InsertPrescription) => {
       const response = await apiRequest("POST", "/api/prescriptions", prescription);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/prescriptions"] });
+    },
+  });
+}
+
+export function useUpdatePrescription() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...prescription }: { id: number } & Partial<InsertPrescription>) => {
+      const response = await apiRequest("PUT", `/api/prescriptions/${id}`, prescription);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/prescriptions"] });
+    },
+  });
+}
+
+export function useDeletePrescription() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const response = await apiRequest("DELETE", `/api/prescriptions/${id}`);
       return response.json();
     },
     onSuccess: () => {
