@@ -144,6 +144,32 @@ export function useCreatePurchaseOrder() {
   });
 }
 
+export function useUpdatePurchaseOrder() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...order }: { id: number } & Partial<InsertPurchaseOrder>) => {
+      const response = await apiRequest("PUT", `/api/purchase-orders/${id}`, order);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/purchase-orders"] });
+    },
+  });
+}
+
+export function useDeletePurchaseOrder() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const response = await apiRequest("DELETE", `/api/purchase-orders/${id}`);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/purchase-orders"] });
+    },
+  });
+}
+
 // Consignments
 export function useConsignments() {
   return useQuery<Consignment[]>({
